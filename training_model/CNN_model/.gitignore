@@ -1,4 +1,5 @@
-/training_model/CNN_model/emotion_dataset_validation.csv
-/training_model/CNN_model/emotion_dataset_validation.csv
+/emotion_dataset_validation.csv
 
-/training_model/CNN_model/processed_data.json
+/emotion_dataset.csv
+
+/processed_data.json
