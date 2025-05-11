@@ -4,10 +4,10 @@ from tensorflow.keras.models import load_model
 import json
 
 # --- Load model và thông tin class ---
-model = load_model('C:/Users/DELL/Desktop/model/App_Mobile_Emotion/training_model/CNN_model/full_model_notEarlyStopPart2.keras')
+model = load_model('D:/model/App_Mobile_Emotion/training_model/CNN_model/full_model_notEarlyStopPart2.keras')
 
 
-with open('C:/Users/DELL/Desktop/model/App_Mobile_Emotion/training_model/CNN_model/generator_info.json', 'r') as f:
+with open('D:/model/App_Mobile_Emotion/training_model/CNN_model/generator_info.json', 'r') as f:
     generator_info = json.load(f)
 class_labels = generator_info["train_generator"]["class_labels"]
 index_to_class = {i: label for i, label in enumerate(class_labels)}

@@ -5,10 +5,10 @@ import json
 from tkinter import Tk, filedialog
 
 # Load model
-model = load_model('C:/Users/DELL/Desktop/model/App_Mobile_Emotion/training_model/CNN_model/full_model_notEarlyStopPart2.keras')
+model = load_model('D:/model/App_Mobile_Emotion/training_model/CNN_model/full_model_notEarlyStopPart2.keras')
 
 
-with open('C:/Users/DELL/Desktop/model/App_Mobile_Emotion/training_model/CNN_model/generator_info.json', 'r') as f:
+with open('D:/model/App_Mobile_Emotion/training_model/CNN_model/generator_info.json', 'r') as f:
     generator_info = json.load(f)
 
 # Lấy danh sách class_labels
