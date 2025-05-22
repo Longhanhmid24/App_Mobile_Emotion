@@ -1,0 +1,28 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "emotion_app",
+            "cwd": "training_model\\App_Mobile\\Front_End\\emotion_app",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "emotion_app (profile mode)",
+            "cwd": "training_model\\App_Mobile\\Front_End\\emotion_app",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "emotion_app (release mode)",
+            "cwd": "training_model\\App_Mobile\\Front_End\\emotion_app",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}
