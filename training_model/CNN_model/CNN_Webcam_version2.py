@@ -4,10 +4,10 @@ from tensorflow.keras.models import load_model
 import tensorflow as tf
 
 # --- Tải mô hình đã huấn luyện ---
-model = load_model('C:/Users/DELL/Desktop/model/App_Mobile_Emotion/training_model/CNN_model/emotion_model.keras')
+model = load_model('D:/model/App_Mobile_Emotion/training_model/CNN_model/CNN_Model_FER2013.keras')
 
 # --- Danh sách nhãn cảm xúc ---
-class_labels = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise']
+class_labels = ['angry', 'fear', 'happy', 'neutral', 'sad', 'surprise']
 
 # --- Hàm xử lý ảnh khuôn mặt ---
 def preprocess_face(gray_img, x, y, w, h):
@@ -25,6 +25,9 @@ if not cap.isOpened():
     print("❌ Không mở được webcam!")
     exit()
 
+# --- Khởi tạo bộ CLAHE (tăng tương phản cục bộ) ---
+clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+
 print("🎥 Webcam đang chạy... Nhấn 'q' để thoát.")
 
 while True:
@@ -33,11 +36,14 @@ while True:
         print("❌ Không thể đọc frame!")
         break
 
+    # --- Chuyển sang ảnh xám và tăng tương phản ---
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5)
+    enhanced_gray = clahe.apply(gray)  # Dùng CLAHE thay vì histogram thường
+
+    faces = face_cascade.detectMultiScale(enhanced_gray, scaleFactor=1.2, minNeighbors=5)
 
     for (x, y, w, h) in faces:
-        face_input = preprocess_face(gray, x, y, w, h)
+        face_input = preprocess_face(enhanced_gray, x, y, w, h)
         predictions = model.predict(face_input, verbose=0)[0]
 
         # Vẽ khung và hiển thị nhãn cảm xúc
@@ -54,7 +60,7 @@ while True:
             cv2.putText(frame, text, (10, 25 + i * 25),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 1)
 
-    cv2.imshow('Emotion Detection - Press q to quit', frame)
+    cv2.imshow('WebCam Mo Hinh CNN - Press q to quit', frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
