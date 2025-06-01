@@ -21,6 +21,9 @@ class _CameraEmotionScreenState extends State<CameraEmotionScreen> {
   int _lastInferenceTime = 0;
   List<double> _emotionProbs = [];
 
+  List<CameraDescription> _cameras = [];
+  int _selectedCameraIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -44,18 +47,17 @@ class _CameraEmotionScreenState extends State<CameraEmotionScreen> {
       _modelLoaded = true;
     });
 
-    await initCamera();
+    _cameras = await availableCameras();
+    await _startCamera();
   }
 
-  Future<void> initCamera() async {
-    final cameras = await availableCameras();
-    final frontCamera = cameras.firstWhere(
-      (c) => c.lensDirection == CameraLensDirection.front,
-      orElse: () => cameras.first,
-    );
+  Future<void> _startCamera() async {
+    if (_cameras.isEmpty) return;
+
+    final selectedCamera = _cameras[_selectedCameraIndex];
 
     _controller = CameraController(
-      frontCamera,
+      selectedCamera,
       ResolutionPreset.medium,
       imageFormatGroup: ImageFormatGroup.yuv420,
     );
@@ -72,16 +74,17 @@ class _CameraEmotionScreenState extends State<CameraEmotionScreen> {
       _lastInferenceTime = now;
 
       try {
-        final processedImage = _convertYUV420ToImage(image);
-        if (processedImage != null) {
-          final output = await _predictor.predictRaw(processedImage);
-          final label = await _predictor.predict(processedImage);
-          if (mounted) {
-            setState(() {
-              _emotion = label;
-              _emotionProbs = output;
-            });
-          }
+        final processedImage = _convertYUV420ToImage(
+          image,
+          selectedCamera.lensDirection,
+        );
+        final output = await _predictor.predictRaw(processedImage);
+        final label = await _predictor.predict(processedImage);
+        if (mounted) {
+          setState(() {
+            _emotion = label;
+            _emotionProbs = output;
+          });
         }
       } catch (e) {
         print('Lỗi xử lý ảnh hoặc dự đoán: $e');
@@ -93,8 +96,22 @@ class _CameraEmotionScreenState extends State<CameraEmotionScreen> {
     if (mounted) setState(() {});
   }
 
-  /// Chuyển CameraImage (YUV420) sang ảnh grayscale Image package, xử lý xoay ảnh camera front
-  img.Image _convertYUV420ToImage(CameraImage image) {
+  Future<void> _switchCamera() async {
+    if (_cameras.length < 2) return;
+
+    _selectedCameraIndex = (_selectedCameraIndex + 1) % _cameras.length;
+
+    await _controller?.stopImageStream();
+    await _controller?.dispose();
+
+    await _startCamera();
+  }
+
+  /// Chuyển CameraImage (YUV420) sang ảnh grayscale Image package, xử lý lật và xoay tùy camera
+  img.Image _convertYUV420ToImage(
+    CameraImage image,
+    CameraLensDirection direction,
+  ) {
     final width = image.width;
     final height = image.height;
     final img.Image grayscaleImage = img.Image(width: width, height: height);
@@ -120,13 +137,14 @@ class _CameraEmotionScreenState extends State<CameraEmotionScreen> {
       }
     }
 
-    // Lật ngang (mirror) để khớp với camera front
-    final img.Image flipped = img.flipHorizontal(grayscaleImage);
+    // Nếu là camera trước thì lật ngang để đúng chiều người dùng
+    img.Image adjusted =
+        direction == CameraLensDirection.front
+            ? img.flipHorizontal(grayscaleImage)
+            : grayscaleImage;
 
-    // Xoay 90 độ cho ảnh đúng chiều
-    final img.Image rotated = img.copyRotate(flipped, angle: 90);
-
-    return rotated;
+    // Xoay ảnh 90 độ cho đúng chiều hiển thị
+    return img.copyRotate(adjusted, angle: 90);
   }
 
   @override
@@ -161,6 +179,18 @@ class _CameraEmotionScreenState extends State<CameraEmotionScreen> {
                           ),
                         ],
                       ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 40,
+                    right: 20,
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.cameraswitch,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                      onPressed: _switchCamera,
                     ),
                   ),
                   Positioned(
