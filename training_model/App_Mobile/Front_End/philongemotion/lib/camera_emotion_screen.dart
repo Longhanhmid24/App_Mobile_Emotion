@@ -162,6 +162,22 @@ class _CameraEmotionScreenState extends State<CameraEmotionScreen> {
               : Stack(
                 children: [
                   CameraPreview(_controller!),
+
+                  // Khung hình vuông lớn ở giữa màn hình, màu xanh nhạt giảm độ sáng
+                  Center(
+                    child: Container(
+                      width: 280, // tăng kích thước lên
+                      height: 280,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.blueAccent.withOpacity(0.5),
+                          width: 4,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
+
                   Positioned(
                     top: 40,
                     left: 20,
